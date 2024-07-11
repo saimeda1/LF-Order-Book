@@ -1,4 +1,68 @@
-# LF-Order-Book
+# LF Order Book
+
+LF Order Book is a lock-free order book implementation designed for high-performance trading systems. This project provides a robust and efficient way to manage buy and sell orders, ensuring accurate and timely execution of trades without traditional locking mechanisms.
+
+## Features
+
+- **Efficient Data Structure**: Utilizes advanced data structures to maintain and query order books efficiently.
+- **Lock-Free Algorithms**: Implements lock-free algorithms to manage shared data.
+- **High Throughput**: Designed to handle a large number of orders with minimal latency.
+- **Concurrency Handling**: Ensures thread safety through atomic operations and lock-free programming techniques.
+
+## Getting Started
+
+### Prerequisites
+
+- C++11 or later
+- CMake (for building the project)
+- Standard C++ Library
+
+### Installation
+
+1. Clone the repository:
+
+    ```bash
+    git clone https://github.com/saimeda1/LF-Order-Book.git
+    cd LF-Order-Book
+    ```
+
+2. Build the project using CMake:
+
+    ```bash
+    mkdir build
+    cd build
+    cmake ..
+    make
+    ```
+
+### Usage
+
+1. Run the main executable to start the order book:
+
+    ```bash
+    ./Meda_LF_Book
+    ```
+
+2. The application will simulate order inputs and start the matching engine.
+
+# Code Overview
+
+## Order Structure
+
+Defines an order with attributes such as order_id, price, quantity, order_type (buy/sell), and a timestamp for price-time priority.
+
+```c++
+struct Order {
+    uint64_t order_id;
+    double price;
+    int quantity;
+    char order_type; // 'B' for buy, 'S' for sell
+    uint64_t timestamp;
+
+    Order(uint64_t id, double p, int q, char type, uint64_t time)
+        : order_id(id), price(p), quantity(q), order_type(type), timestamp(time) {}
+};
+```
 
 
 ## Order Book
@@ -17,7 +81,8 @@ public:
     void match_orders();
 };
 ```
-Concurrency Handling
+
+## Concurrency Handling
 
 Uses fine-grained locking to reduce contention and improve performance. Mutexes are used to synchronize access to the bids and asks maps.
 
@@ -25,8 +90,7 @@ Market Data Simulation
 
 Simulates market conditions by generating random orders and feeding them into the order book.
 
-cpp
-Copy code
+```c++
 void simulate_order_input(OrderBook& book, int num_orders, char order_type) {
     for (int i = 0; i < num_orders; ++i) {
         double price = 100 + rand() % 10 - 5;
@@ -34,12 +98,13 @@ void simulate_order_input(OrderBook& book, int num_orders, char order_type) {
         book.add_order(new_order);
     }
 }
-Order Matching Engine
+```
+## Order Matching Engine
 
 Matches orders based on price-time priority, ensuring fair and efficient execution.
 
-cpp
-Copy code
+
+```c++
 void match_orders(OrderBook& book) {
     std::lock(book.mtx_bids, book.mtx_asks);
     std::lock_guard<std::mutex> lock_bids(book.mtx_bids, std::adopt_lock);
@@ -73,8 +138,6 @@ void match_orders(OrderBook& book) {
         }
     }
 }
-Further Enhancements and Considerations
-Fine-Grained Locking: Reduces contention between threads adding orders and the matching engine.
-Concurrency Management: Ensures deadlock avoidance with std::lock and multiple mutexes.
-Market Simulation: Involves random pricing and quantities for realistic simulation.
-Lock-Free Transition: Replace maps and deques with lock-free data structures and use atomic operations for managing pointers in these structures.
+```
+
+
